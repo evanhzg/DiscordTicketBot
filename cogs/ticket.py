@@ -18,11 +18,17 @@ class TicketPanelView(discord.ui.View):
             await interaction.response.send_message("Bot configuration error: Missing Category or Mod Role IDs.", ephemeral=True)
             return
 
-        category = guild.get_channel(int(category_id))
+        category_obj = guild.get_channel(int(category_id))
+        category = None
+        if isinstance(category_obj, discord.CategoryChannel):
+            category = category_obj
+        elif category_obj and hasattr(category_obj, 'category'):
+            category = category_obj.category
+
         mod_role = guild.get_role(int(mod_role_id))
 
-        if not category or not mod_role:
-            await interaction.response.send_message("Bot configuration error: Category or Mod Role not found in this server.", ephemeral=True)
+        if not mod_role:
+            await interaction.response.send_message("Bot configuration error: Mod Role not found in this server.", ephemeral=True)
             return
 
         # Check if the user already has a ticket
