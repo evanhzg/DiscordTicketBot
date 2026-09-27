@@ -24,15 +24,20 @@ class TicketBot(commands.Bot):
         self.add_view(TicketPanelView())
         self.add_view(TicketCloseView())
         
-        # Sync slash commands
-        guild_id = os.getenv('GUILD_ID')
-        if guild_id:
-            guild = discord.Object(id=int(guild_id))
-            self.tree.copy_global_to(guild=guild)
-            await self.tree.sync(guild=guild)
-        else:
-            await self.tree.sync()
-        print("Slash commands synced successfully.")
+        try:
+            # Sync slash commands
+            guild_id = os.getenv('GUILD_ID')
+            if guild_id:
+                guild = discord.Object(id=int(guild_id))
+                self.tree.copy_global_to(guild=guild)
+                await self.tree.sync(guild=guild)
+            else:
+                await self.tree.sync()
+            print("Slash commands synced successfully.")
+        except discord.Forbidden:
+            print("WARNING: Failed to sync slash commands! The bot is either not invited to the server or is missing the 'applications.commands' scope.")
+        except Exception as e:
+            print(f"WARNING: Error syncing slash commands: {e}")
 
     async def on_ready(self):
         print('------')
